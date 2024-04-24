@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Form</title>
+<style>
+
+        .login-form body {
+        background-color: #161b26;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        }
+        
+        .login-form {
+            width: 500px;
+            margin: auto;
+            padding: 20px;
+            background-color: #1f2737;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .login-form h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        
+        .login-form form p {
+            margin: 0;
+            padding: 0;
+            color: #cfd8e3;
+        }
+        
+        
+        .login-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #293449;
+            border: none;
+            border-radius: 3px;
+            color: #cfd8e3;
+        }
+        
+        .login-form button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #0066cc;
+            border: none;
+            border-radius: 3px;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .login-form button[type="submit"]:hover {
+            background-color: #0052a3;
+        }
+        
+
+        .login-form img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        border-radius: 50%;
+        }
+
+</style>
+
+</head>
+<body>
+    <div class="login-form">
+        <h1> LOGIN SCREEN </h1>
+        <img src="eul.png" alt="school logo" width="200" height="200">
+        <br />
+        <form action="#" method="post" id="loginForm">
+            <p>Username</p>
+            <input type="text" name="name" placeholder="Username" id="name">
+            <p>Password</p>
+            <input type="password" name="studentNo" placeholder="Password" id="studentNo">
+            <br />
+            <br/>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            
+            var parser = new DOMParser();
+            var xmlDoc = parser.parseFromString(this.responseText, "text/xml");
+
+            
+            var loginForm = document.getElementById("loginForm");
+            loginForm.addEventListener("submit", function(event) {
+                event.preventDefault(); 
+
+                
+                var usernameInput = document.querySelector("input[name='name']");
+                var passwordInput = document.querySelector("input[name='studentNo']");
+                var enteredUsername = usernameInput.value;
+                var enteredPassword = passwordInput.value;
+
+                
+                var students = xmlDoc.getElementsByTagName("Student");
+
+                var studentFound = false;
+                var loggedInStudent = null;
+
+                for (var i = 0; i < students.length; i++) {
+                    var student = students[i];
+                    var studentNo = student.getElementsByTagName("StudentNo")[0].textContent;
+                    var name = student.getElementsByTagName("Name")[0].textContent;
+
+                    if (enteredUsername === name && enteredPassword === studentNo) {
+                        studentFound = true;
+                        loggedInStudent = student;
+                        break; 
+                    }
+                }
+
+                if (studentFound) {
+                    
+                    var formData = new FormData();
+                    formData.append("studentNo", loggedInStudent.getElementsByTagName("StudentNo")[0].textContent);
+                    formData.append("name", loggedInStudent.getElementsByTagName("Name")[0].textContent);
+                    formData.append("surname", loggedInStudent.getElementsByTagName("Surname")[0].textContent);
+                    formData.append("program", loggedInStudent.getElementsByTagName("Program")[0].textContent);
+
+                    
+                    var hiddenForm = document.createElement("form");
+                    hiddenForm.method = "POST";
+                    hiddenForm.action = "register.php";
+                    hiddenForm.style.display = "none";
+
+                    
+                    for (var pair of formData.entries()) {
+                        var input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = pair[0];
+                        input.value = pair[1];
+                        hiddenForm.appendChild(input);
+                    }
+
+                    
+                    document.body.appendChild(hiddenForm);
+                    hiddenForm.submit();
+                } else {
+                    alert("Invalid username or password");
+                }
+            });
+        }
+    };
+    xhr.open("GET", "student.xml", true);  
+    xhr.send();
+});
+
+
+    </script>
+</body>
+</html>
